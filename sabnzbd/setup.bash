@@ -1,5 +1,16 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="1.8"
+scriptVersion="2.8"
+
+if [ -f /config/setup_version.txt ]; then
+  source /config/setup_version.txt
+  if [ "$scriptVersion" == "$setupversion" ]; then
+    if apk --no-cache list | grep installed | grep opus-tools | read; then
+      echo "Setup was previously completed, skipping..."
+      exit
+    fi
+  fi
+fi
+echo "setupversion=$scriptVersion" > /config/setup_version.txt
 
 ######## Package dependencies installation
 InstallRequirements () {
@@ -58,6 +69,18 @@ if [ -f /config/sma.ini ]; then
     chmod 777 /config/scripts/sma.ini 
   else
     echo "File /config/scripts/sma.ini already exists. Not overwriting."
+  fi
+fi
+
+echo "Downloading SMA config: /config/scripts/sma_defaultlang.ini"
+curl "https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sabnzbd/sma_defaultlang.ini" -o /config/sma_defaultlang.ini
+if [ -f /config/sma_defaultlang.ini ]; then
+  if [ ! -f /config/scripts/sma_defaultlang.ini ]; then
+    echo "Importing /config/sma.ini to /config/scripts/sma_defaultlang.ini"
+    mv /config/sma.ini /config/scripts/sma_defaultlang.ini 
+    chmod 777 /config/scripts/sma_defaultlang.ini 
+  else
+    echo "File /config/scripts/sma_defaultlang.ini already exists. Not overwriting."
   fi
 fi
 

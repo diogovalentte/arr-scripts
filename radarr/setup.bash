@@ -1,5 +1,17 @@
 #!/usr/bin/with-contenv bash
+scriptVersion="1.3.2"
 SMA_PATH="/usr/local/sma"
+
+if [ -f /config/setup_version.txt ]; then
+  source /config/setup_version.txt
+  if [ "$scriptVersion" == "$setupversion" ]; then
+    if apk --no-cache list | grep installed | grep opus-tools | read; then
+      echo "Setup was previously completed, skipping..."
+      exit
+    fi
+  fi
+fi
+echo "setupversion=$scriptVersion" > /config/setup_version.txt
 
 echo "************ install packages ************" && \
 apk add -U --update --no-cache \
